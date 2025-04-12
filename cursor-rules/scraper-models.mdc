@@ -1,0 +1,96 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: This rule provides the description of the possible scraper types that can be created.
+globs: **/*.py
+---
+# Scraper types
+Here's a list of possible scraper types and ther data structures
+
+## E-commerce PLP
+- The structure of the items in a PLP scraper is the following: website_name, extraction_date, product_code, item_url, full_price, price, currency, image_url, brand, product_category1, product_category2, product_category3, product_name
+- When asked to create an e-commerce PLP scraper, set items.py file and in the scraper ouput accordingly to the data structure.
+- PLP pages are the product list pages in an e-commerce, also called catalogue pages. In a e-commerce PLP scraper, the scraper should crawl all the product catalog without entering the pages with product details.
+- The scraper will usually start from a home page.
+
+
+## E-commerce PDP
+- The strucutre of the items in a PDP scraper is the following: website_name, extraction_date, product_code, item_url, full_price, price, currency, image_url, brand, product_category1, product_category2, product_category3, product_name, product_description, product_size, product_color, additional_info
+- When asked to create an e-commerce PDP scraper, set items.py file and in the scraper ouput accordingly to the data structure.
+- PDP pages are product detail pages, the final leaf of an e-commerce website. An e-commerce PDP scraper will have in input a list of PDP pages and won't need to crawl the website further.
+
+
+
+# How to fill the scraper fields with values
+- **When asked to map a field of a data structure to the information contained in the HTML, use the following rules:**
+    - **website_name**: this is a fixed value per each scraper, usually the website's name in upper case. If in doubt, ask to the operator
+    - **extraction_date**: fixed value for the whole execution, YYYY-MM-DD format. Use datetime library
+    - **product_code**: code that identifies every single product on the website
+    - **item_url**: URL of the page containing the details of the product. If PDP data structure, it corresponds to response.url
+    - **full_price**: price before the discounts. If there's no discount on the item, it's the selling price.
+    - **price**: final selling price after the discounts. If no discount is on the website, it's the selling price. 
+    - **currency**: ISO3 Code for currency, fixed value for a whole scraper. Detect the currency from the HTML and use the ISO Code to populate the field
+    - **brand**: brand or producer of the product sold on the website
+    - **product_category1**: first level or product categorization, usually the first level of the breadcrumb of the page, if any.
+    - **product_category2**: second level or product categorization, usually the second level of the breadcrumb of the page, if any.
+    - **product_category3**: third level or product categorization, usually the third level of the breadcrumb of the page, if any.
+    - **product_name**: name of the product as shown on the pages
+- In any case and in any field of a scraper, do not hardcode any value but always find a selector to get the correct one. 
+- Always print in output every field of the scraper, even if it's empty.
+
+# How to create an e-commerce PLP scraper
+Follow this step by step guide to create the code of the scraper. Before doing so, be sure to have read and executed all the commands in the [prerequisites.mdc](mdc:.cursor/rules/prerequisites.mdc) rule
+- **Create a scrapy project**: create a scrapy project named like the website. Follow the file structure you find in the [scrapy.mdc](mdc:.cursor/rules/scrapy.mdc) file
+- **Download the HTML of the home page**: download the home page of the website in the file homepage.html, using the full path retrieved before
+- **Read the HTML of the home page**: after downloading the home page HTML, read the file homepage.html to understand where are located the URLs of the product categories
+- **Ask in chat the URL of a category**: after reading the homepage.html file, ask in chat an URL of a product category. 
+- **Write the parse method**: write the XPATH selectors needed for extract the URL given in chat and all the URLs that are similar. Do not extract strictly the URL passed but all the URLs with the same level of hierarchy in the HTML. Per each URL then call a method called parse_category
+- **Download the HTML of the product category page**: download the HTML of the product category page in a file called product_category.html in the full path retrieved in the previous steps
+- **Interpret the HTML file**: strip down all the css code from the file. Check if there is a complete JSON inside the HTML page, that can be used instead of parsing the HTML. Write in the chat if you've found it or not. 
+- **Elaborate the JSON, if found**: if a JSON is found, fill the output fields with the values extracted from the JSON. Use the json python package. 
+- **Read the product category HTML**: if a JSON is not found, read the file product_category.html to find where is the data needed to fill all the output fields
+- **Write XPATH selectors of the items**: if a JSON is not found, write the XPATH selectors needed to extract the information needed to fill all the fields of the output items, based on the HTML of the product_category.html file
+- **Write the code of the method parse_category**: now you can complete the parse_category method by using the XPATH or the JSON fields for retrieving the data needed for the items 
+
+# How to create an e-commerce PDP scraper
+Follow this step by step guide to create the code of the scraper. 
+- **Create a scrapy project**: create a scrapy project named like the website. Follow the file structure you find in the @scrapy.mdc file
+- **Download the HTML of a pdp page**: download the HTML of a PDP page of the website in the file pdp_page.html, using the full path retrieved before
+- **Read the HTML of the PDP page**: after downloading the PDP page HTML, read the file pdp_page.html to understand where are located the information needed to fill the fields of the e-commerce PDP data structure
+- **Write the parse_product method**: write the XPATH selectors needed for extract the information. Per each URL yield an item in output
+- **Create the final structire**: the E-commerce PDP scraper will receive PDP pages in input from a file called input.txt. When asked to write a PDP scraper, first load the URLS contained in the input.txt file in a list called urls and then iterate it. Per each url, call the method parse_product where you will write the selectors and yield the items
+
+# Suggested settings
+Here's a list of default values to use in the settings.py file:
+- ROBOTSTXT_OBEY = False
+- DEFAULT_REQUEST_HEADERS = {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "accept-language": "en-US,en;q=0.8",
+    "priority": "u=0, i",
+    "sec-ch-ua": "\"Not(A:Brand\";v=\"99\", \"Brave\";v=\"133\", \"Chromium\";v=\"133\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "sec-gpc": "1",
+    "upgrade-insecure-requests": "1"
+  }
+- CONCURRENT_REQUESTS = 4
+- USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+
+# Anti bot countermeasures
+- In case Akamai is protecting the website, implement scrapy_impersonate on the scraper using these custom options: 
+  custom_settings = {
+		"DOWNLOAD_HANDLERS": {
+			"http": "scrapy_impersonate.ImpersonateDownloadHandler",
+			"https": "scrapy_impersonate.ImpersonateDownloadHandler",
+			},
+		"TWISTED_REACTOR": "twisted.internet.asyncioreactor.AsyncioSelectorReactor",
+	}
+  and then add 'impersonate':'chrome110' in the meta values of each request.
+  
