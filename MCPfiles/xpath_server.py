@@ -7,7 +7,7 @@ import json
 import re
 
 mcp = FastMCP("Scrapy XPath Generator")
-CAMOUFOX_FILE_PATH = "/PATH/TO/camoufox_template.py"
+CAMOUFOX_FILE_PATH = os.path.join(os.path.dirname(__file__), "Camoufox_template.py")
 
 @mcp.tool()
 async def fetch_page_content(url: str, html_file_path:str, cookies_file_path:str) -> str:
