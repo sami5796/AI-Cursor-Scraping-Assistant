@@ -1,3 +1,7 @@
+import os
+os.environ["HEADLESS"] = "1"
+os.environ["DISPLAY"] = ":99"
+
 from mcp.server.fastmcp import FastMCP
 import asyncio
 from camoufox.async_api import AsyncCamoufox
@@ -16,7 +20,7 @@ async def fetch_page_content(url: str, html_file_path:str, cookies_file_path:str
 	"""Fetch page HTML using Camoufox stealth browser.Save the HTML code in the PATH specified."""
 	print(f"[DEBUG] Fetching URL: {url}")
 	try:
-		async with AsyncCamoufox(humanize=True) as browser:
+		async with AsyncCamoufox(humanize=True, headless=True) as browser:
 			page = await browser.new_page()
 			await page.goto(url)
 			time.sleep(10)

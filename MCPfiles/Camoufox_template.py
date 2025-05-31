@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-# I'll just read the file to see its contents, not make any changes.
-# When writing the scraper, modifiy the output field list to match the template  you're using.
+import os
+os.environ["HEADLESS"] = "1"
+os.environ["DISPLAY"] = ":99"
+
 from camoufox.sync_api import Camoufox
 import time
 from random import randrange
@@ -29,7 +31,8 @@ def accept_cookies(page):
 		pass
 		
 with Camoufox(humanize=True, 
-	 geoip=True
+	 geoip=True,
+	 headless=True
 	) as browser:
 	page = browser.new_page()
 	page.goto(url)
